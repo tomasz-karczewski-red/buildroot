@@ -15,3 +15,5 @@
 !libxml/
 !zlib/
 !.dartignore
+!wayland
+!wayland-protocols
