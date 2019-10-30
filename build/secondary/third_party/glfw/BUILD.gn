@@ -2,6 +2,8 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+import("$flutter_root/common/config.gni")
+
 _checkout_dir = "//third_party/glfw"
 
 config("relative_glfw_headers") {
@@ -45,37 +47,74 @@ source_set("glfw") {
 
     defines = [ "_GLFW_WIN32" ]
   } else if (is_linux) {
-    sources += [
-      "$_checkout_dir/src/egl_context.c",
-      "$_checkout_dir/src/egl_context.h",
-      "$_checkout_dir/src/glx_context.c",
-      "$_checkout_dir/src/glx_context.h",
-      "$_checkout_dir/src/linux_joystick.c",
-      "$_checkout_dir/src/linux_joystick.h",
-      "$_checkout_dir/src/posix_time.c",
-      "$_checkout_dir/src/posix_time.h",
-      "$_checkout_dir/src/posix_tls.c",
-      "$_checkout_dir/src/posix_tls.h",
-      "$_checkout_dir/src/x11_init.c",
-      "$_checkout_dir/src/x11_monitor.c",
-      "$_checkout_dir/src/x11_platform.h",
-      "$_checkout_dir/src/x11_window.c",
-      "$_checkout_dir/src/xkb_unicode.c",
-      "$_checkout_dir/src/xkb_unicode.h",
-    ]
+    if (use_wayland_backend) { # WAYLAND
+      deps = [
+        "//third_party/wayland-protocols:relative_pointer_protocol",
+        "//third_party/wayland-protocols:pointer_constraints_protocol",
+      ]
 
-    defines = [
-      "_GLFW_X11",
-      "_GLFW_HAS_XF86VM",
-    ]
+      sources += [
+        # Headers
+        "$_checkout_dir/src/wl_platform.h",
+        "$_checkout_dir/src/linux_joystick.h",
+        "$_checkout_dir/src/posix_time.h",
+        "$_checkout_dir/src/posix_tls.h",
+        "$_checkout_dir/src/xkb_unicode.h",
+        "$_checkout_dir/src/egl_context.h",
+        # Sources
+        "$_checkout_dir/src/wl_init.c",
+        "$_checkout_dir/src/wl_monitor.c",
+        "$_checkout_dir/src/wl_window.c",
+        "$_checkout_dir/src/linux_joystick.c",
+        "$_checkout_dir/src/posix_time.c",
+        "$_checkout_dir/src/posix_tls.c",
+        "$_checkout_dir/src/xkb_unicode.c",
+        "$_checkout_dir/src/egl_context.c",
+      ]
 
-    libs = [
-      "X11",
-      "Xcursor",
-      "Xinerama",
-      "Xrandr",
-      "Xxf86vm",
-    ]
+      defines = [
+        "_GLFW_WAYLAND",
+      ]
+
+      libs = [
+        "wayland-client",
+        "wayland-cursor",
+        "wayland-egl",
+        "xkbcommon",
+      ]
+    } else { # X11
+      sources += [
+        "$_checkout_dir/src/egl_context.c",
+        "$_checkout_dir/src/egl_context.h",
+        "$_checkout_dir/src/glx_context.c",
+        "$_checkout_dir/src/glx_context.h",
+        "$_checkout_dir/src/linux_joystick.c",
+        "$_checkout_dir/src/linux_joystick.h",
+        "$_checkout_dir/src/posix_time.c",
+        "$_checkout_dir/src/posix_time.h",
+        "$_checkout_dir/src/posix_tls.c",
+        "$_checkout_dir/src/posix_tls.h",
+        "$_checkout_dir/src/x11_init.c",
+        "$_checkout_dir/src/x11_monitor.c",
+        "$_checkout_dir/src/x11_platform.h",
+        "$_checkout_dir/src/x11_window.c",
+        "$_checkout_dir/src/xkb_unicode.c",
+        "$_checkout_dir/src/xkb_unicode.h",
+      ]
+
+      defines = [
+        "_GLFW_X11",
+        "_GLFW_HAS_XF86VM",
+      ]
+
+      libs = [
+        "X11",
+        "Xcursor",
+        "Xinerama",
+        "Xrandr",
+        "Xxf86vm",
+      ]
+    }
   } else if (is_mac) {
     sources += [
       "$_checkout_dir/src/cocoa_init.m",
