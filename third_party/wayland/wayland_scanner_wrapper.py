@@ -10,9 +10,26 @@ Script to run wayland-scaner for wayland_protocol.gni.
 from __future__ import print_function
 
 import argparse
+import os
 import os.path
 import subprocess
 import sys
+
+# Symlinks file-name.h with wayland-file-name.h for satisfying glfw
+def create_wayland_link(path_file):
+  basename = os.path.dirname(path_file)
+  filename = os.path.basename(path_file)
+  symlink  = "wayland-" + filename
+
+  cwd = os.getcwd()
+
+  try:
+    os.chdir(basename)
+    os.symlink(filename, symlink)
+  except OSError as e:
+    raise RuntimeError("wayland-scanner: os.symlink() returned an error({}): \"{}\"".format(e.errno, e.strerror))
+  finally:
+    os.chdir(cwd)
 
 def generate_code(wayland_scanner_cmd, code_type, path_in, path_out):
   ret = subprocess.call([wayland_scanner_cmd, code_type, path_in, path_out])
@@ -42,6 +59,7 @@ def main(argv):
                   out_base_name + "-client-protocol.h")
     generate_code(cmd, "server-header", protocol_path,
                   out_base_name + "-server-protocol.h")
+    create_wayland_link(out_base_name + "-client-protocol.h")
 
 if __name__ == "__main__":
   try:
