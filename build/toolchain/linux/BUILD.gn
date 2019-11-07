@@ -31,6 +31,20 @@ gcc_toolchain("arm") {
   is_clang = false
 }
 
+gcc_toolchain("clang_arm") {
+  cc = "${compiler_prefix}arm-rdk-linux-gnueabi-clang"
+  cxx = "${compiler_prefix}arm-rdk-linux-gnueabi-clang++"
+
+  ar = "arm-rdk-linux-gnueabi-ar"
+  ld = cxx
+  readelf = "arm-rdk-linux-gnueabi-readelf"
+  nm = "arm-rdk-linux-gnueabi-nm"
+
+  toolchain_cpu = "arm"
+  toolchain_os = "linux"
+  is_clang = false
+}
+
 gcc_toolchain("clang_x86") {
   if (use_clang_type_profiler) {
     prefix = rebase_path("//third_party/llvm-allocated-type/Linux_ia32/bin",
