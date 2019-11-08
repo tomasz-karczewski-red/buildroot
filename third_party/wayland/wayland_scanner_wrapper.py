@@ -25,9 +25,11 @@ def create_wayland_link(path_file):
 
   try:
     os.chdir(basename)
+    if os.path.isfile(symlink):
+      os.remove(symlink)
     os.symlink(filename, symlink)
   except OSError as e:
-    raise RuntimeError("wayland-scanner: os.symlink() returned an error({}): \"{}\"".format(e.errno, e.strerror))
+    raise RuntimeError("wayland-scanner: Creating symlink returned an error({}): \"{}\"".format(e.errno, e.strerror))
   finally:
     os.chdir(cwd)
 
