@@ -32,9 +32,13 @@ def create_wayland_link(path_file):
     os.chdir(cwd)
 
 def generate_code(wayland_scanner_cmd, code_type, path_in, path_out):
-  ret = subprocess.call([wayland_scanner_cmd, code_type, path_in, path_out])
-  if ret != 0:
-    raise RuntimeError("wayland-scanner returned an error: %d" % ret)
+  try:
+    cmd = [wayland_scanner_cmd, code_type, path_in, path_out]
+    ret = subprocess.call([wayland_scanner_cmd, code_type, path_in, path_out])
+    if ret != 0:
+      raise RuntimeError("wayland-scanner returned an error: %d" % ret)
+  except OSError as e:
+    raise RuntimeError("wayland-scanner: cwd({}) cmd({}) error({}): \"{}\"".format(os.getcwd(), ' '.join(map(str,cmd)), e.errno, e.strerror))
 
 def main(argv):
   parser = argparse.ArgumentParser()
@@ -45,7 +49,7 @@ def main(argv):
                       help="Input protocol file paths relative to src root.")
 
   options = parser.parse_args()
-  cmd = os.path.realpath(options.cmd)
+  cmd = options.cmd
   src_root = options.src_root
   root_gen_dir = options.root_gen_dir
   protocols = options.protocols
