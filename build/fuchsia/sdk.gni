@@ -14,6 +14,12 @@ declare_args() {
   fuchsia_toolchain_path = "//fuchsia/toolchain/$host_os"
 }
 
+declare_args() {
+  # The Skia buildroot uses this flag to decide if it should be using the
+  # Fuchsia SDK to build its translation units.
+  skia_using_fuchsia_sdk = using_fuchsia_sdk
+}
+
 _fuchsia_sdk_path = "//fuchsia/sdk/$host_os"
 
 template("_fuchsia_sysroot") {
@@ -94,7 +100,7 @@ template("_fuchsia_fidl_library") {
       "$target_gen_dir/fuchsia/$library_name_slashes/c/fidl.h",
       "$target_gen_dir/fuchsia/$library_name_slashes/cpp/fidl.h",
       "$target_gen_dir/fuchsia/$library_name_slashes/cpp/fidl.cc",
-      "$target_gen_dir/fuchsia/$library_name_slashes/cpp/tables.cc",
+      "$target_gen_dir/fuchsia/$library_name_slashes/cpp/tables.c",
     ]
 
     args = [
@@ -116,7 +122,7 @@ template("_fuchsia_fidl_library") {
       rebase_path("$target_gen_dir/fuchsia/$library_name_slashes/c/fidl.h"),
       "--output-c-tables",
       rebase_path(
-          "$target_gen_dir/fuchsia/$library_name_slashes/cpp/tables.cc"),
+          "$target_gen_dir/fuchsia/$library_name_slashes/cpp/tables.c"),
     ]
   }
 
